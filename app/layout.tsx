@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { ADSENSE_CLIENT } from "@/lib/adsense";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
@@ -16,22 +16,19 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const adClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT;
+  const adClient = ADSENSE_CLIENT;
   return (
     <html lang="en" className={`${inter.variable} ${mono.variable}`}>
       <head>
-        {adClient && <meta name="google-adsense-account" content={adClient} />}
+        <meta name="google-adsense-account" content={adClient} />
+        {/* Plain <script> in <head> so the AdSense verification crawler sees it in the raw HTML. */}
+        <script
+          async
+          crossOrigin="anonymous"
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adClient}`}
+        />
       </head>
       <body>
-        {adClient && (
-          <Script
-            id="adsense"
-            async
-            strategy="afterInteractive"
-            crossOrigin="anonymous"
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adClient}`}
-          />
-        )}
         <Header />
         <main>{children}</main>
         <Footer />
