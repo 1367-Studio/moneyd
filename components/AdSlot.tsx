@@ -49,7 +49,7 @@ export default function AdSlot({ slot, format = "auto", layoutKey, className = "
         data-ad-slot={slot}
         data-ad-format={format}
         data-ad-layout-key={layoutKey}
-        data-full-width-responsive="true"
+        data-full-width-responsive={format === "fluid" ? undefined : "true"}
       />
     </div>
   );

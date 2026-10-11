@@ -87,7 +87,7 @@ export default async function Home() {
                 <Fragment key={a.id}>
                   <NewsCard article={a} />
                   {i === 5 && (
-                    <AdSlot slot={process.env.NEXT_PUBLIC_AD_SLOT_INFEED} format="fluid" className="ad--infeed" />
+                    <AdSlot slot={process.env.NEXT_PUBLIC_AD_SLOT_INFEED} format="fluid" layoutKey={process.env.NEXT_PUBLIC_AD_LAYOUT_KEY_INFEED} className="ad--infeed" />
                   )}
                 </Fragment>
               ))}

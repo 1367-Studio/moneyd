@@ -36,7 +36,7 @@ Without `FINNHUB_API_KEY` the site shows demo headlines so you can preview the d
    verification meta tag and the AdSense script.
 3. Edit `public/ads.txt` and replace `pub-XXXXXXXXXXXXXXXX` with your ID (without `ca-`).
 4. After approval, create 3 ad units (Display: top banner, In-feed, Display: sidebar) and set
-   `NEXT_PUBLIC_AD_SLOT_TOP`, `NEXT_PUBLIC_AD_SLOT_INFEED`, `NEXT_PUBLIC_AD_SLOT_SIDEBAR`.
+   `NEXT_PUBLIC_AD_SLOT_TOP`, `NEXT_PUBLIC_AD_SLOT_INFEED`, `NEXT_PUBLIC_AD_SLOT_SIDEBAR`, plus the in-feed unit's `data-ad-layout-key` as `NEXT_PUBLIC_AD_LAYOUT_KEY_INFEED`.
 
 Until these are set, the site shows striped "Advertisement" placeholders where ads will go.
 
