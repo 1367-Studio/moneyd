@@ -64,6 +64,15 @@ export async function getAllNews() {
   return Object.fromEntries(CATEGORIES.map((c, i) => [c.slug, lists[i]])) as Record<Category, Article[]>;
 }
 
+export async function getArticle(category: Category, id: number) {
+  const articles = await getNews(category);
+  return { article: articles.find((a) => a.id === id), articles };
+}
+
+export function articlePath(article: Pick<Article, "category" | "id">) {
+  return `/news/${article.category}/${article.id}`;
+}
+
 export function timeAgo(unix: number) {
   const s = Math.max(0, Math.floor(Date.now() / 1000 - unix));
   if (s < 3600) return `${Math.max(1, Math.floor(s / 60))}m ago`;

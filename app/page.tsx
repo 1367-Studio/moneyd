@@ -2,7 +2,8 @@ import Link from "next/link";
 import { Fragment } from "react";
 import AdSlot from "@/components/AdSlot";
 import NewsCard from "@/components/NewsCard";
-import { CATEGORIES, getAllNews } from "@/lib/news";
+import ScrollVideoHero from "@/components/ScrollVideoHero";
+import { CATEGORIES, articlePath, getAllNews } from "@/lib/news";
 
 // Rebuilt at most once a day; the morning cron forces the refresh.
 export const revalidate = 86400;
@@ -20,9 +21,8 @@ export default async function Home() {
 
   return (
     <>
-      <section className="hero">
-        <div className="hero__glow" aria-hidden />
-        <div className="container">
+      <ScrollVideoHero scrollLength={2.5}>
+        <div className="video-hero__copy">
           <span className="pill">
             <span className="pill__dot" /> Morning edition · {edition}
           </span>
@@ -39,15 +39,15 @@ export default async function Home() {
             <Link href="/markets" className="btn btn--ghost">Browse markets →</Link>
           </div>
         </div>
-      </section>
+      </ScrollVideoHero>
 
       {tickerItems.length > 0 && (
         <div className="ticker" aria-label="Headlines">
           <div className="ticker__track">
             {[...tickerItems, ...tickerItems].map((a, i) => (
-              <a key={i} href={a.url} target="_blank" rel="noopener noreferrer nofollow">
+              <Link key={i} href={articlePath(a)}>
                 <span className="tag">{a.category}</span> {a.headline}
-              </a>
+              </Link>
             ))}
           </div>
         </div>

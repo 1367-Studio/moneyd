@@ -1,13 +1,9 @@
-import { Article, timeAgo } from "@/lib/news";
+import Link from "next/link";
+import { Article, articlePath, timeAgo } from "@/lib/news";
 
 export default function NewsCard({ article, variant = "default" }: { article: Article; variant?: "default" | "lead" | "compact" }) {
   return (
-    <a
-      className={`card card--${variant}`}
-      href={article.url}
-      target="_blank"
-      rel="noopener noreferrer nofollow"
-    >
+    <Link className={`card card--${variant}`} href={articlePath(article)}>
       {variant !== "compact" && (
         <div className="card__media">
           {article.image ? (
@@ -30,9 +26,9 @@ export default function NewsCard({ article, variant = "default" }: { article: Ar
         <h3 className="card__title">{article.headline}</h3>
         {variant !== "compact" && article.summary && <p className="card__summary">{article.summary}</p>}
         <span className="card__cta">
-          Read on {article.source} <span aria-hidden>→</span>
+          Read story <span aria-hidden>→</span>
         </span>
       </div>
-    </a>
+    </Link>
   );
 }
