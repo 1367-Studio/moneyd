@@ -38,11 +38,32 @@ Without `FINNHUB_API_KEY` the site shows demo headlines so you can preview the d
 4. After approval, create 3 ad units (Display: top banner, In-feed, Display: sidebar) and set
    `NEXT_PUBLIC_AD_SLOT_TOP`, `NEXT_PUBLIC_AD_SLOT_INFEED`, `NEXT_PUBLIC_AD_SLOT_SIDEBAR`, plus the in-feed unit's `data-ad-layout-key` as `NEXT_PUBLIC_AD_LAYOUT_KEY_INFEED`.
 
-Until these are set, the site shows striped "Advertisement" placeholders where ads will go.
+Until these are set, ad units render nothing in production (placeholders only show in `npm run dev`).
+
+**Consent (EU):** in AdSense go to Privacy & messaging → European regulations and publish the consent
+message for moneydrops.news. Google requires a certified consent banner for visitors in the EEA, UK and Switzerland.
+
+## Original content (what gets the site approved)
+
+AdSense only approves sites with enough original writing. Our own content lives in `/content` as Markdown:
+
+- `content/guides/*.md`: evergreen explainers (shown at `/guides`, on the homepage and linked from each section).
+- `content/briefings/YYYY-MM-DD.md`: the daily morning briefing. Copy `content/briefings/_template.md`,
+  write 300–600 words in your own words, commit and push. The newest briefing appears on the homepage and
+  a "Briefings" link appears in the nav. `/briefings` stays hidden until the first one exists.
+
+Story pages (`/news/...`) only show a short excerpt from the original publisher. They're `noindex`, left
+out of the sitemap and carry no ad units.
+
+Publisher details (company, address, email, publication director) live in `lib/site.ts` and feed the
+About, Contact, Legal notice, Terms, Privacy pages and the footer.
 
 ## Where things live
 
-- `lib/news.ts`: Finnhub fetching, categories, demo data
+- `lib/news.ts`: Finnhub fetching, categories and section intros, markets topic filter, demo data
+- `lib/text.ts`: cleans feed text (HTML tags, entities) and trims summaries to short excerpts
+- `lib/content.ts`: reads Markdown guides and briefings from `/content`
+- `lib/site.ts`: publisher and legal details
 - `app/page.tsx`: homepage · `app/[category]/page.tsx`: Markets / Forex / Crypto / Deals
 - `components/AdSlot.tsx`: AdSense ad unit
 - `app/globals.css`: all styling (colour tokens at the top)

@@ -3,6 +3,7 @@ import { Fragment } from "react";
 import AdSlot from "@/components/AdSlot";
 import NewsCard from "@/components/NewsCard";
 import ScrollVideoHero from "@/components/ScrollVideoHero";
+import { formatDate, getPosts } from "@/lib/content";
 import { CATEGORIES, articlePath, getAllNews } from "@/lib/news";
 
 // Rebuilt at most once a day; the morning cron forces the refresh.
@@ -18,6 +19,8 @@ export default async function Home() {
     weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC",
   });
   const tickerItems = CATEGORIES.flatMap((c) => news[c.slug].slice(0, 4));
+  const [briefing] = getPosts("briefings");
+  const guides = getPosts("guides").slice(0, 4);
 
   return (
     <>
@@ -57,10 +60,21 @@ export default async function Home() {
         <AdSlot slot={process.env.NEXT_PUBLIC_AD_SLOT_TOP} className="ad--banner" />
       </div>
 
+      {briefing && (
+        <section className="container section">
+          <Link href={`/briefings/${briefing.slug}`} className="briefing-card">
+            <span className="label">Morning briefing · {formatDate(briefing.date)}</span>
+            <h2>{briefing.title}</h2>
+            {briefing.description && <p>{briefing.description}</p>}
+            <span className="link">Read the briefing · {briefing.readingMinutes} min →</span>
+          </Link>
+        </section>
+      )}
+
       {lead ? (
         <section className="container section" id="latest">
           <div className="section__head">
-            <span className="label">01 — Top story</span>
+            <span className="label">Top story</span>
           </div>
           <div className="lead-grid">
             <NewsCard article={lead} variant="lead" />
@@ -78,7 +92,7 @@ export default async function Home() {
       {latest.length > 0 && (
         <section className="container section">
           <div className="section__head">
-            <span className="label">02 — Latest in markets</span>
+            <span className="label">Latest in markets</span>
             <Link href="/markets" className="link">View all →</Link>
           </div>
           <div className="with-sidebar">
@@ -99,12 +113,12 @@ export default async function Home() {
         </section>
       )}
 
-      {CATEGORIES.filter((c) => c.slug !== "markets").map((c, idx) =>
+      {CATEGORIES.filter((c) => c.slug !== "markets").map((c) =>
         news[c.slug].length ? (
           <section key={c.slug} className="container section">
             <div className="section__head">
               <div>
-                <span className="label">0{idx + 3} — {c.label}</span>
+                <span className="label">{c.label}</span>
                 <h2 className="section__title">{c.blurb}</h2>
               </div>
               <Link href={`/${c.slug}`} className="link">View all →</Link>
@@ -114,6 +128,28 @@ export default async function Home() {
             </div>
           </section>
         ) : null
+      )}
+
+      {guides.length > 0 && (
+        <section className="container section">
+          <div className="section__head">
+            <div>
+              <span className="label">Guides</span>
+              <h2 className="section__title">Understand the news behind the numbers.</h2>
+            </div>
+            <Link href="/guides" className="link">All guides →</Link>
+          </div>
+          <div className="guide-grid">
+            {guides.map((g) => (
+              <Link key={g.slug} href={`/guides/${g.slug}`} className="guide-card">
+                {g.category && <span className="tag">{g.category}</span>}
+                <h3>{g.title}</h3>
+                <p>{g.description}</p>
+                <span className="card__cta">{g.readingMinutes} min read →</span>
+              </Link>
+            ))}
+          </div>
+        </section>
       )}
 
       <section className="container section">

@@ -16,6 +16,9 @@ type Props = {
   className?: string;
 };
 
+// Ad units only render once their slot ID is configured (after AdSense approval).
+// Until then nothing is shown in production: empty "Advertisement" boxes make the site look
+// unfinished to AdSense reviewers. In `npm run dev` a placeholder still shows the layout.
 export default function AdSlot({ slot, format = "auto", layoutKey, className = "" }: Props) {
   const client = ADSENSE_CLIENT;
   const pushed = useRef(false);
@@ -30,11 +33,11 @@ export default function AdSlot({ slot, format = "auto", layoutKey, className = "
     }
   }, [client, slot]);
 
-  // Before AdSense is configured, show a labelled placeholder so the layout is visible.
   if (!client || !slot) {
+    if (process.env.NODE_ENV !== "development") return null;
     return (
       <div className={`ad ad--placeholder ${className}`}>
-        <span className="label">Advertisement</span>
+        <span className="label">Advertisement (dev preview)</span>
       </div>
     );
   }
