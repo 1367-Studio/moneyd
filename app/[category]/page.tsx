@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { Fragment } from "react";
 import AdSlot from "@/components/AdSlot";
 import NewsCard from "@/components/NewsCard";
+import Link from "next/link";
+import { getPost } from "@/lib/content";
 import { CATEGORIES, Category, getNews } from "@/lib/news";
 
 export const revalidate = 86400;
@@ -26,6 +28,7 @@ export default async function CategoryPage({ params }: Props) {
   if (!meta) notFound();
 
   const articles = await getNews(category as Category);
+  const guide = getPost("guides", meta.guide);
 
   return (
     <>
@@ -35,6 +38,17 @@ export default async function CategoryPage({ params }: Props) {
           <span className="label">Section</span>
           <h1 className="hero__title">{meta.label}</h1>
           <p className="hero__lead">{meta.blurb}</p>
+        </div>
+      </section>
+
+      <section className="container section">
+        <div className="section-intro">
+          {meta.intro.map((p) => <p key={p}>{p}</p>)}
+          {guide && (
+            <Link href={`/guides/${guide.slug}`} className="link">
+              New to {meta.label.toLowerCase()}? Read our guide: {guide.title} →
+            </Link>
+          )}
         </div>
       </section>
 

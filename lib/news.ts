@@ -1,3 +1,5 @@
+import { clean, excerpt } from "@/lib/text";
+
 export type Category = "markets" | "forex" | "crypto" | "deals";
 
 export type Article = {
@@ -12,12 +14,56 @@ export type Article = {
   related: string;
 };
 
-export const CATEGORIES: { slug: Category; label: string; blurb: string; finnhub: string }[] = [
-  { slug: "markets", label: "Markets", blurb: "Stocks, earnings, macro and the economy.", finnhub: "general" },
-  { slug: "forex", label: "Forex", blurb: "Currencies, central banks and rates.", finnhub: "forex" },
-  { slug: "crypto", label: "Crypto", blurb: "Bitcoin, Ethereum and digital assets.", finnhub: "crypto" },
-  { slug: "deals", label: "Deals", blurb: "Mergers, acquisitions and IPOs.", finnhub: "merger" },
+export type CategoryMeta = {
+  slug: Category;
+  label: string;
+  blurb: string;
+  finnhub: string;
+  /** Original intro shown at the top of the section page. */
+  intro: string[];
+  /** Slug of the guide that explains this section's basics. */
+  guide: string;
+};
+
+export const CATEGORIES: CategoryMeta[] = [
+  {
+    slug: "markets", label: "Markets", blurb: "Stocks, earnings, macro and the economy.", finnhub: "general", guide: "earnings-season",
+    intro: [
+      "The Markets section follows what moves stock prices: company earnings and guidance, central bank decisions, inflation and jobs data, and the big swings in energy and commodities that feed into all of them.",
+      "When you read a markets headline, ask two questions: was this expected, and does it change the outlook for profits or interest rates? Prices react to surprises, not to news the market already priced in.",
+    ],
+  },
+  {
+    slug: "forex", label: "Forex", blurb: "Currencies, central banks and rates.", finnhub: "forex", guide: "read-a-forex-quote",
+    intro: [
+      "Currencies trade in pairs, so every forex story is really about two economies at once. The biggest driver is the gap between interest rates, which is why central bank meetings and inflation releases dominate this section.",
+      "Watch the US dollar first: most global trade and debt is priced in it, so a stronger or weaker dollar ripples through every other pair, commodities and emerging markets.",
+    ],
+  },
+  {
+    slug: "crypto", label: "Crypto", blurb: "Bitcoin, Ethereum and digital assets.", finnhub: "crypto", guide: "what-moves-crypto-prices",
+    intro: [
+      "Crypto trades around the clock and reacts fast to liquidity, regulation and security incidents. Bitcoin still sets the tone; most other tokens move with it, only more sharply.",
+      "Treat headlines about hacks, exchange outages and regulatory action as risk signals first. They tend to move prices more, and faster, than technology announcements.",
+    ],
+  },
+  {
+    slug: "deals", label: "Deals", blurb: "Mergers, acquisitions and IPOs.", finnhub: "merger", guide: "merger-arbitrage-spreads",
+    intro: [
+      "Deals covers mergers, acquisitions, buyouts and listings. A deal headline matters for the buyer, the target and often their competitors, and the details (cash or shares, premium, regulatory risk) decide who wins.",
+      "After an announcement the target usually trades a little below the offer price. That gap, the deal spread, is the market's estimate of the risk that the deal falls through.",
+    ],
+  },
 ];
+
+// Finnhub's "general" feed mixes world politics into business news. The Markets section keeps
+// only stories that mention something markets-related.
+const FINANCE_TERMS =
+  /\b(stocks?|shares?|equit(y|ies)|markets?|earnings|revenue|profits?|loss(es)?|guidance|investors?|invest(ing|ment)?s?|fund|funds|etfs?|portfolio|ipos?|deals?|merger|acquisitions?|buyouts?|valuation|dividends?|bonds?|yields?|treasur(y|ies)|rates?|fed|ecb|boe|boj|central bank|inflation|cpi|gdp|jobs|payrolls|unemployment|recession|economy|economic|tariffs?|trad(e|es|ing|ers?)|exchanges?|oil|crude|gas|lng|gold|copper|commodit(y|ies)|dollar|euro|yen|currenc(y|ies)|forex|bitcoin|crypto|banks?|banking|lenders?|credit|debt|loans?|ceo|cfo|company|companies|firms?|corp|inc|s&p|nasdaq|dow|index|indices|futures|prices?|sales|consumers?|spending|housing|mortgages?|insurers?|insurance|billion|million|analysts?|downgrad\w*|upgrad\w*|rall(y|ies)|selloff|sell-off)\b/i;
+
+function isMarketsStory(a: { headline: string; summary: string }) {
+  return FINANCE_TERMS.test(a.headline) || FINANCE_TERMS.test(a.summary.slice(0, 300));
+}
 
 // One day. The Vercel Cron job (vercel.json) refreshes earlier, every morning at 06:00 UTC.
 const ONE_DAY = 60 * 60 * 24;
@@ -49,10 +95,17 @@ export async function getNews(category: Category): Promise<Article[]> {
 
     const seen = new Set<string>();
     return items
+      .map((a) => ({
+        ...a,
+        headline: clean(a.headline),
+        summary: excerpt(clean(a.summary)),
+        source: clean(a.source),
+        category,
+      }))
       .filter((a) => a.headline && a.url && !seen.has(a.headline) && seen.add(a.headline))
+      .filter((a) => category !== "markets" || isMarketsStory(a))
       .sort((a, b) => b.datetime - a.datetime)
-      .slice(0, 40)
-      .map((a) => ({ ...a, summary: a.summary?.trim() ?? "", category }));
+      .slice(0, 40);
   } catch (err) {
     console.error(`[news] failed to load ${category}:`, err);
     return [];

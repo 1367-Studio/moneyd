@@ -8,7 +8,7 @@ export default function NewsCard({ article, variant = "default" }: { article: Ar
         <div className="card__media">
           {article.image ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={article.image} alt="" loading="lazy" referrerPolicy="no-referrer" />
+            <img src={article.image} alt={article.headline} loading="lazy" referrerPolicy="no-referrer" />
           ) : (
             <div className="card__fallback">
               <span>{article.source.slice(0, 2).toUpperCase()}</span>

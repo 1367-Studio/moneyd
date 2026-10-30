@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { getPosts } from "@/lib/content";
 import { CATEGORIES } from "@/lib/news";
 
 export default function Header() {
+  const hasBriefings = getPosts("briefings").length > 0;
   return (
     <header className="header">
       <div className="container header__inner">
@@ -19,8 +21,10 @@ export default function Header() {
               {c.label}
             </Link>
           ))}
+          {hasBriefings && <Link href="/briefings">Briefings</Link>}
+          <Link href="/guides">Guides</Link>
         </nav>
-        <Link href="/#latest" className="btn btn--primary btn--sm">
+        <Link href={hasBriefings ? "/briefings" : "/#latest"} className="btn btn--primary btn--sm">
           Today&apos;s drops
         </Link>
       </div>
